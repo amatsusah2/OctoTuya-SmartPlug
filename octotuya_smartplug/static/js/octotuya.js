@@ -15,6 +15,15 @@ $(function() {
 		self.isPrinting = ko.observable(false);
 		self.selectedPlug = ko.observable();
 		self.processing = ko.observableArray([]);
+		self.testingConnection = ko.observable(false);
+		self.connectionTestResult = ko.observable("");
+		self.connectionTestSuccess = ko.observable(false);
+
+		self.resetConnectionTest = function() {
+			self.testingConnection(false);
+			self.connectionTestResult("");
+			self.connectionTestSuccess(false);
+		}
 
 		self.onBeforeBinding = function() {
 			self.arrSmartplugs(self.settings.settings.plugins.octotuya.arrSmartplugs());
@@ -41,11 +50,13 @@ $(function() {
 		}
 
 		self.editPlug = function(data) {
+			self.resetConnectionTest();
 			self.selectedPlug(data);
 			$("#TuyaPlugEditor").modal("show");
 		}
 
 		self.addPlug = function() {
+			self.resetConnectionTest();
 			self.selectedPlug({'ip':ko.observable(''),
 									'id':ko.observable(''),
 									'slot':ko.observable(1),
@@ -53,7 +64,7 @@ $(function() {
 									'label':ko.observable(''),
 									'icon':ko.observable('icon-bolt'),
 									'displayWarning':ko.observable(true),
-									'v33':ko.observable(false),
+									'protocolVersion':ko.observable('3.3'),
 									'warnPrinting':ko.observable(false),
 									'gcodeEnabled':ko.observable(false),
 									'gcodeOnDelay':ko.observable(0),
@@ -184,6 +195,42 @@ $(function() {
 				self.settings.saveData();
 				});
         };
+
+		self.testConnection = function() {
+			var plug = self.selectedPlug();
+			if (!plug) {
+				return;
+			}
+
+			self.testingConnection(true);
+			self.connectionTestResult("Testing supported protocols...");
+			self.connectionTestSuccess(false);
+
+			$.ajax({
+				url: API_BASEURL + "plugin/octotuya",
+				type: "POST",
+				dataType: "json",
+				data: JSON.stringify({
+					command: "testConnection",
+					ip: plug.ip(),
+					id: plug.id(),
+					localKey: plug.localKey(),
+					protocolVersion: plug.protocolVersion()
+				}),
+				contentType: "application/json; charset=UTF-8"
+			}).done(function(response) {
+				if (response.success) {
+					plug.protocolVersion(String(response.protocolVersion));
+					self.connectionTestSuccess(true);
+				}
+				self.connectionTestResult(response.message || "Connection test failed.");
+			}).fail(function() {
+				self.connectionTestResult("Unable to run the connection test.");
+				self.connectionTestSuccess(false);
+			}).always(function() {
+				self.testingConnection(false);
+			});
+		}
 
 		self.disconnectPrinter = function() {
             $.ajax({
