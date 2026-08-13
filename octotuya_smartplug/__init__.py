@@ -160,7 +160,6 @@ class octotuyaPlugin(
         plug = self.plug_search(
             self._settings.get(["arrSmartplugs"]), "label", pluglabel
         )
-        self._octotuya_logger.debug(plug)
         if plug["useCountdownRules"]:
             chk = self.sendCommand(
                 "countdown", plug["label"], int(plug["countdownOnDelay"])
@@ -182,10 +181,10 @@ class octotuyaPlugin(
                         args=[plug["sysRunCmdOn"]],
                     )
                     t.start()
-                else:
-                    self._plugin_manager.send_plugin_message(
-                        self._identifier, dict(currentState="unknown", label=pluglabel)
-                    )
+        else:
+            self._plugin_manager.send_plugin_message(
+                self._identifier, dict(currentState="unknown", label=pluglabel)
+            )
 
     def turn_off(self, pluglabel):
         self._octotuya_logger.debug("Turning off %s." % pluglabel)
@@ -198,7 +197,6 @@ class octotuyaPlugin(
         plug = self.plug_search(
             self._settings.get(["arrSmartplugs"]), "label", pluglabel
         )
-        self._octotuya_logger.debug(plug)
         if plug["useCountdownRules"]:
             chk = self.sendCommand(
                 "countdown", plug["label"], int(plug["countdownOffDelay"])
