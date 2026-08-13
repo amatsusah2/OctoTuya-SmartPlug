@@ -13,7 +13,7 @@ import time
 import tinytuya
 
 
-SUPPORTED_PROTOCOL_VERSIONS = ("3.1", "3.3", "3.4", "3.5")
+SUPPORTED_PROTOCOL_VERSIONS = ("3.3", "3.4", "3.5", "3.1")
 DEFAULT_PROTOCOL_VERSION = "3.3"
 
 
@@ -255,7 +255,12 @@ class octotuyaPlugin(
         return data and plug and data.get("dps", {}).get(str(plug["slot"]))
 
     def get_api_commands(self):
-        return dict(turnOn=["label"], turnOff=["label"], checkStatus=["label"])
+        return dict(
+            turnOn=["label"],
+            turnOff=["label"],
+            checkStatus=["label"],
+            testConnection=["ip", "id", "localKey", "protocolVersion"],
+        )
 
     def on_api_command(self, command, data):
         if not user_permission.can():
@@ -269,6 +274,10 @@ class octotuyaPlugin(
             self.turn_off("{label}".format(**data))
         elif command == "checkStatus":
             self.check_status("{label}".format(**data))
+        elif command == "testConnection":
+            from flask import jsonify
+
+            return jsonify(self.test_tuya_connection(data))
 
     # ~~ Utilities
 
@@ -288,6 +297,58 @@ class octotuyaPlugin(
         )
         device.set_version(float(version))
         return device
+
+    def protocol_candidates(self, selected):
+        selected = normalize_protocol_version(selected)
+        return [selected] + [
+            version for version in SUPPORTED_PROTOCOL_VERSIONS if version != selected
+        ]
+
+    def test_tuya_connection(self, config):
+        required_fields = ("ip", "id", "localKey")
+        missing_fields = [
+            field
+            for field in required_fields
+            if not str(config.get(field, "")).strip()
+        ]
+        if missing_fields:
+            return {
+                "success": False,
+                "message": "Enter the IP address, device ID, and local key first.",
+            }
+
+        for version in self.protocol_candidates(config.get("protocolVersion")):
+            device = None
+            try:
+                device = self.create_tuya_device(config, version)
+                device.set_socketTimeout(5)
+                response = device.status()
+                if (
+                    isinstance(response, dict)
+                    and isinstance(response.get("dps"), dict)
+                    and response["dps"]
+                ):
+                    return {
+                        "success": True,
+                        "protocolVersion": version,
+                        "message": "Connected successfully.",
+                    }
+            except Exception:
+                pass
+            finally:
+                if device is not None:
+                    try:
+                        device.close()
+                    except Exception:
+                        pass
+
+        return {
+            "success": False,
+            "message": (
+                "No supported protocol returned a valid status. Check the IP "
+                "address, device ID, and local key."
+            ),
+        }
 
     def sendCommand(self, cmd, pluglabel, args=None):
         self._octotuya_logger.debug("Sending command: %s to %s" % (cmd, pluglabel))
