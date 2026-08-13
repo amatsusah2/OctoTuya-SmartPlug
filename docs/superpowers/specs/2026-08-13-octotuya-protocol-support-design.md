@@ -109,6 +109,12 @@ After installing the fork cleanly in OctoPrint:
 
 Commit the implementation and documentation to the personal fork. Push using the user-authorized personal credential only through an ephemeral process environment. Do not save that credential in repository files, Git remotes, Git configuration, shell profiles, logs, or documentation.
 
+After the final push, GitHub's branch archive is the installable ZIP artifact:
+
+`https://github.com/amatsusah2/OctoTuya-SmartPlug/archive/refs/heads/main.zip`
+
+Do not commit a generated ZIP into the repository. Verify that the GitHub archive downloads successfully, contains `setup.py`, `MANIFEST.in`, and the plugin package, and installs through OctoPrint's **Plugin Manager → Get More → ... from URL** workflow. Document this exact installation URL in the README.
+
 ## Decision rationale
 
 - A reusable per-device selector was chosen over a one-line 3.4 patch because different devices may require different protocol versions.
@@ -117,3 +123,4 @@ Commit the implementation and documentation to the personal fork. Push using the
 - Test & Detect is explicit and user-triggered because failed protocol handshakes can be slow or briefly disrupt device connectivity.
 - Detection updates the UI but does not save automatically, preserving OctoPrint's normal settings workflow.
 - Automated tests were omitted because this is a small, low-risk on/off plugin change; lightweight static checks plus real-device verification define acceptance.
+- GitHub's `main.zip` archive is the canonical OctoPrint installation artifact, avoiding a redundant binary checked into source control.
