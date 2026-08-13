@@ -8,7 +8,7 @@ The first deployment will be a clean uninstall/install. Existing `v33` settings 
 
 ## Scope
 
-Change only protocol selection, connection diagnostics, related tests, and documentation. Preserve existing power control, status polling, G-code hooks, countdown timers, printer connection behavior, and system-command behavior.
+Change only protocol selection, connection diagnostics, and related documentation. Preserve existing power control, status polling, G-code hooks, countdown timers, printer connection behavior, and system-command behavior.
 
 The work remains in `amatsusah2/OctoTuya-SmartPlug`; no upstream pull request is required.
 
@@ -82,28 +82,17 @@ The diagnostic must not run during plugin startup, settings saves, polling, stat
   - Replace the checkbox with the dropdown.
   - Add the Test & Detect control and result area.
   - Display the chosen protocol in the plug summary.
-- `tests/`
-  - Add focused automated tests with mocked TinyTuya devices.
 - `README.md` and `changelog.md`
   - Document supported versions, clean-install expectation, and Test & Detect behavior.
 
-## Automated verification
+## Verification
 
-Tests must cover:
+Do not add an automated test suite for this low-risk plugin. Before publishing:
 
-- Allowed and rejected protocol values.
-- Default protocol 3.3.
-- Normal commands applying the configured protocol.
-- Selected-version-first detection ordering.
-- No duplicate candidate attempts.
-- Immediate stop after a valid DPS response.
-- Continued probing after TinyTuya error dictionaries and exceptions.
-- All-versions-failed response.
-- Socket closure on success and failure.
-- Sanitized responses and logs that omit credentials.
-- Administrator permission enforcement for the diagnostic API.
-
-Run the full available test suite plus package/import checks before publishing.
+- Compile the changed Python module to catch syntax errors.
+- Perform a package/import sanity check in an OctoPrint-compatible environment when available.
+- Inspect the final diff for accidentally committed credentials.
+- Complete the real-device verification below.
 
 ## Device verification
 
@@ -118,7 +107,7 @@ After installing the fork cleanly in OctoPrint:
 
 ## Release and credential handling
 
-Commit implementation and tests to the personal fork. Push using the user-authorized personal credential only through an ephemeral process environment. Do not save that credential in repository files, Git remotes, Git configuration, shell profiles, logs, or documentation.
+Commit the implementation and documentation to the personal fork. Push using the user-authorized personal credential only through an ephemeral process environment. Do not save that credential in repository files, Git remotes, Git configuration, shell profiles, logs, or documentation.
 
 ## Decision rationale
 
@@ -127,3 +116,4 @@ Commit implementation and tests to the personal fork. Push using the user-author
 - A clean install eliminates migration complexity and avoids the upstream migration function that resets the plug array.
 - Test & Detect is explicit and user-triggered because failed protocol handshakes can be slow or briefly disrupt device connectivity.
 - Detection updates the UI but does not save automatically, preserving OctoPrint's normal settings workflow.
+- Automated tests were omitted because this is a small, low-risk on/off plugin change; lightweight static checks plus real-device verification define acceptance.
