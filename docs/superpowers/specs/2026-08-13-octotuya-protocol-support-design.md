@@ -92,11 +92,11 @@ Do not add an automated test suite for this low-risk plugin. Before publishing:
 - Compile the changed Python module to catch syntax errors.
 - Perform a package/import sanity check in an OctoPrint-compatible environment when available.
 - Inspect the final diff for accidentally committed credentials.
-- Complete the real-device verification below.
+- Confirm the repository packaging files include all changed plugin assets.
 
-## Device verification
+## User verification after push
 
-After installing the fork cleanly in OctoPrint:
+The user will perform OctoPrint installation and all real-device checks. Provide the final GitHub ZIP URL and this checklist after pushing:
 
 1. Re-enter the device settings.
 2. Start with protocol 3.3 and run Test & Detect.
@@ -113,7 +113,7 @@ After the final push, GitHub's branch archive is the installable ZIP artifact:
 
 `https://github.com/amatsusah2/OctoTuya-SmartPlug/archive/refs/heads/main.zip`
 
-Do not commit a generated ZIP into the repository. Verify that the GitHub archive downloads successfully, contains `setup.py`, `MANIFEST.in`, and the plugin package, and installs through OctoPrint's **Plugin Manager → Get More → ... from URL** workflow. Document this exact installation URL in the README.
+Do not commit a generated ZIP into the repository. Verify that the GitHub archive downloads successfully and contains `setup.py`, `MANIFEST.in`, and the plugin package. The user will verify installation through OctoPrint's **Plugin Manager → Get More → ... from URL** workflow. Document this exact installation URL in the README.
 
 ## Decision rationale
 
@@ -122,5 +122,6 @@ Do not commit a generated ZIP into the repository. Verify that the GitHub archiv
 - A clean install eliminates migration complexity and avoids the upstream migration function that resets the plug array.
 - Test & Detect is explicit and user-triggered because failed protocol handshakes can be slow or briefly disrupt device connectivity.
 - Detection updates the UI but does not save automatically, preserving OctoPrint's normal settings workflow.
-- Automated tests were omitted because this is a small, low-risk on/off plugin change; lightweight static checks plus real-device verification define acceptance.
+- Automated tests were omitted because this is a small, low-risk on/off plugin change; lightweight static and packaging checks define implementation acceptance, followed by user-run live verification.
 - GitHub's `main.zip` archive is the canonical OctoPrint installation artifact, avoiding a redundant binary checked into source control.
+- OctoPrint installation and live-device behavior are verified manually by the user after push.
