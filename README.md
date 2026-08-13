@@ -34,7 +34,15 @@ I tested all the plugin features using my Ender 3 V2 (Using original Marlin as F
 Install via the bundled [Plugin Manager](https://github.com/foosel/OctoPrint/wiki/Plugin:-Plugin-Manager)
 or manually using this URL:
 
-    https://github.com/andrelucca/OctoTuya-SmartPlug/archive/main.zip
+    https://github.com/amatsusah2/OctoTuya-SmartPlug/archive/refs/heads/main.zip
+
+## Tuya Protocol Version
+
+Each configured plug can use Tuya local protocol 3.1, 3.3, 3.4, or 3.5. New plugs default to 3.3.
+
+Use **Test & Detect** in the device editor to check the selected version and, if needed, try the other supported versions. Detection only reads device status; it does not turn the outlet on or off. When a working version is found, the selector is updated. Save the OctoPrint settings to keep it.
+
+Version 0.2.0 is intended for a clean uninstall/install. Re-enter the device IP, Device ID, Local Key, slot, and other preferences after installing this fork.
 
 ## Preparatory Work
 

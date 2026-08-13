@@ -497,11 +497,11 @@ class octotuyaPlugin(
                 displayVersion=self._plugin_version,
                 # version check: github repository
                 type="github_release",
-                user="andrelucca",
+                user="amatsusah2",
                 repo="OctoTuya-SmartPlug",
                 current=self._plugin_version,
                 # update method: pip
-                pip="https://github.com/andrelucca/OctoTuya-SmartPlug/archive/{target_version}.zip",
+                pip="https://github.com/amatsusah2/OctoTuya-SmartPlug/archive/{target_version}.zip",
             )
         )
 
@@ -510,7 +510,7 @@ class octotuyaPlugin(
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
 # can be overwritten via __plugin_xyz__ control properties. See the documentation for that.
 __plugin_name__ = "OctoTuya SmartPlug"
-__plugin_version__ = "0.1.0"
+__plugin_version__ = "0.2.0"
 __plugin_pythoncompat__ = ">=2.7,<4"
 
 
