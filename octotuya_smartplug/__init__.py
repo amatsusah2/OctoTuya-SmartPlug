@@ -13,6 +13,15 @@ import time
 import tinytuya
 
 
+SUPPORTED_PROTOCOL_VERSIONS = ("3.1", "3.3", "3.4", "3.5")
+DEFAULT_PROTOCOL_VERSION = "3.3"
+
+
+def normalize_protocol_version(value):
+    value = str(value)
+    return value if value in SUPPORTED_PROTOCOL_VERSIONS else DEFAULT_PROTOCOL_VERSION
+
+
 class octotuyaPlugin(
     octoprint.plugin.SettingsPlugin,
     octoprint.plugin.AssetPlugin,
@@ -69,7 +78,7 @@ class octotuyaPlugin(
                     "displayWarning": True,
                     "warnPrinting": False,
                     "gcodeEnabled": False,
-                    "v33": False,
+                    "protocolVersion": DEFAULT_PROTOCOL_VERSION,
                     "gcodeOnDelay": 0,
                     "gcodeOffDelay": 0,
                     "autoConnect": True,
@@ -268,14 +277,24 @@ class octotuyaPlugin(
             if item[key] == value:
                 return item
 
+    def create_tuya_device(self, config, protocol_version=None):
+        version = normalize_protocol_version(
+            protocol_version
+            if protocol_version is not None
+            else config.get("protocolVersion")
+        )
+        device = tinytuya.OutletDevice(
+            config["id"], config["ip"], config["localKey"]
+        )
+        device.set_version(float(version))
+        return device
+
     def sendCommand(self, cmd, pluglabel, args=None):
         self._octotuya_logger.debug("Sending command: %s to %s" % (cmd, pluglabel))
         plug = self.plug_search(
             self._settings.get(["arrSmartplugs"]), "label", pluglabel
         )
-        device = tinytuya.OutletDevice(plug["id"], plug["ip"], plug["localKey"])
-        if plug.get("v33"):
-            device.set_version(3.3)
+        device = self.create_tuya_device(plug)
 
         commands = {
             "info": ("status", None),
