@@ -2,7 +2,8 @@
 from __future__ import absolute_import
 
 import octoprint.plugin
-from octoprint.server import user_permission
+from octoprint.access.permissions import Permissions
+user_permission = Permissions.CONTROL
 import socket
 import json
 import logging
